@@ -33,7 +33,6 @@ def main(event={}):
     sourceBucket = s3.Bucket(config.sourceBucketName)
 
     #Slurp aaaallllll the files locally
-    #TODO: uncomment this block!!!
     with ThreadPoolExecutor(max_workers = maxThreads) as executor:
         for obj in sourceBucket.objects.filter(Prefix=sourceKeyPrefix):
             fileString = obj.key
