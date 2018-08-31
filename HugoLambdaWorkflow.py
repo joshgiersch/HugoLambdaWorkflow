@@ -33,6 +33,7 @@ def main(event={}):
     sourceBucket = s3.Bucket(config.sourceBucketName)
 
     #Slurp aaaallllll the files locally
+    #TODO: uncomment this block!!!
     with ThreadPoolExecutor(max_workers = maxThreads) as executor:
         for obj in sourceBucket.objects.filter(Prefix=sourceKeyPrefix):
             fileString = obj.key
@@ -57,8 +58,8 @@ def main(event={}):
                 sourceFile = os.path.join(root, file)
                 keyString = remove_prefix(sourceFile, config.outputDirectory)
                 mimeType = mimetypes.guess_type(keyString)
-                executor.submit(threaded_upload, destinationBucket, sourceFile, keyString, ExtraArgs = {"ContentType": mimeType, "ACL": "public-read"})
-
+                executor.submit(threaded_upload, destinationBucket, sourceFile, keyString, ExtraArgs = {"ContentType": mimeType[0], "ACL": "public-read"})
+                
     # Cloudfront invalidate
     cloudfront = boto3.client("cloudfront")
     invalidationBatch = {'CallerReference':str(int(datetime.datetime.now().timestamp())), 'Paths':{'Quantity': 1, 'Items':['/*']}}
@@ -69,7 +70,8 @@ def AWSLambdaHandler(event, context):
     config.downloadDirectory = "/tmp/input/"
     config.outputDirectory = "/tmp/output/"
     config.executableLocation = "./hugo"
-    #don't forget to include the hugo executable in the root of your zipfile that you upload to Lambda
+    config.sourceBucketName = event['Records'][0]['s3']['bucket']['name']
+    #don't forget to include the hugo executable - Linux, 64-bit - in the root of your zipfile that you upload to Lambda
     main(event)
     return None
 
