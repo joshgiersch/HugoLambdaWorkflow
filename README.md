@@ -10,3 +10,5 @@ To use:
 * Upload this script and the Hugo executable to Lambda in a single zipfile
 * Point the script to the "source" and "destination" S3 buckets (In production, the "source" bucket and filename will be provided by the AWS S3-Lambda trigger)
 * Ensure that when you update or upload a new file to the source bucket, the script triggers and pushes to the "destination" bucket
+
+**Important note:** If you're using Hugo in Lambda, don't forget to upload the 64-bit Linux executable; and give your Lambda script at least 512MB of RAM, otherwise it'll run out of threads and panic.
